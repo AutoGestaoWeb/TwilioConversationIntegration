@@ -89,7 +89,7 @@ async function getExecutionContext(flowSid, executionSid, retries = 5) {
 
 app.post('/trigger-flow', async (req, res) => {
   try {
-    const { conversationSid, message } = req.body;
+    const { conversationSid, message, name } = req.body;
 
     if (!conversationSid || !message) {
       res.status(400).send({ error: "conversationSid ou message ausentes" });
@@ -98,16 +98,16 @@ app.post('/trigger-flow', async (req, res) => {
 
     const flowSid = process.env.TWILIO_FLOW_SID;
 
+    console.log('conversationSid', conversationSid);
     const execution = await client.studio.v2.flows(flowSid).executions.create({
       to: conversationSid,
       from: 'Web App App', // Certifique-se que 'Web App App' é um identificador válido
-      parameters: { message }
+      parameters: { message, name }
     });
-
     // Armazenar o estado atual do usuário
-    userStates[conversationSid] = { step: 1, lastMessage: message, executionSid: execution.sid };
-
-    res.status(200).json({ success: true, responseMessage: "Mensagem recebida", userMessage: message });
+    userStates[conversationSid] = { step: 1, lastMessage: message, executionSid: execution.sid, reply: false };
+    res.status(200).json({ success: true, responseMessage: "Mensagem recebida", userMessage: message }); 
+    
   } catch (error) {
     console.error("Erro ao acionar o fluxo:", error);
     res.status(500).json({ error: "Erro ao acionar o fluxo" });
@@ -129,16 +129,36 @@ app.post('/continue-flow', async (req, res) => {
       return;
     }
 
-    // Continue the flow based on user's message
-    const response = await client.studio.v2.flows(process.env.TWILIO_FLOW_SID)
-      .executions(state.executionSid)
-      .executionContext()
-      .update({
-        parameters: { message }
-      });
-
-    // Atualizar o estado do usuário
     userStates[conversationSid].lastMessage = message;
+    userStates[conversationSid].reply = true;
+    console.log('userStates[conversationSid]', userStates[conversationSid]);
+    // userStates[conversationSid] = { step: 1, lastMessage: message, executionSid: execution.sid, reply: true };
+
+    // console.log('state.executionSid', state.executionSid);
+    // console.log('message', message);
+    // const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+    // Continue the flow based on user's message
+    // const response = await client.studio.v2.flows(process.env.TWILIO_FLOW_SID)
+    // .executions(state.executionSid)
+    // .executionContext()
+    // .update({
+    //   parameters: { message: message.toString() }
+    // });;
+    // const executionContextUrl = `https://studio.twilio.com/v2/Flows/${process.env.TWILIO_FLOW_SID}/Executions/${state.executionSid}/ExecutionContext`;
+
+    // const response = await client.request({
+    //   method: 'POST',
+    //   uri: executionContextUrl,
+    //   form: {
+    //     Parameters: JSON.stringify({ message: message.toString() })
+    //   }
+    // });
+
+    // console.log('response', response);
+
+    // // Atualizar o estado do usuário
+    // userStates[conversationSid].lastMessage = message;
 
     res.status(200).json({ success: true, responseMessage: "Mensagem processada com sucesso", message });
   } catch (error) {
@@ -149,12 +169,13 @@ app.post('/continue-flow', async (req, res) => {
 
 
 app.post('/twilio-webhook', async (req, res) => {
-  console.log("Resposta do Twilio Studio:", req.body);
+  const {type} = req.query;
+  // console.log("Resposta do Twilio Studio:", req.body);
 
   const { conversationSid, message } = req.body;
 
-  console.log("O conversationSid retornado pela Twilio é:", conversationSid);
-  console.log("A mensagem enviada pela Twilio é:", message);
+  // console.log("O conversationSid retornado pela Twilio é:", conversationSid);
+  // console.log("A mensagem enviada pela Twilio é:", message);
 
   if (!conversationSid || !message) {
     console.error("Erro: conversationSid ou message ausentes");
@@ -174,243 +195,41 @@ app.post('/twilio-webhook', async (req, res) => {
     // Enviar mensagem ao frontend para exibir a resposta
     await enviarMensagemParaChat(conversationSid, message);
 
-    res.status(200).json({ success: true, responseMessage: "Mensagem processada com sucesso", message });
+    let myInterval;
+    let x = 0;
+    const executionTime = process.env.EXECUTION_TIME ? parseInt(process.env.EXECUTION_TIME) : 20;
+    switch (type) {
+      case 'website_reply':
+        myInterval = setInterval(() => {
+          x++;
+          console.log(executionTime);
+          console.log(typeof executionTime);
+          if(x == executionTime || userStates[conversationSid].reply){
+            const reply = userStates[conversationSid].reply ? 'reply' : 'no-reply'
+            userStates[conversationSid].reply = false;
+            res.status(200).send({replyStatus: reply, message: userStates[conversationSid].lastMessage});
+            clearInterval(myInterval);
+          }
+        }, 1000);  
+        break;
+    
+      default:
 
-  } catch (error) {
-    console.error("Erro ao processar mensagem do Twilio:", error);
-    res.status(500).json({ error: "Erro ao processar mensagem do Twilio" });
-  }
-});
+     
+      myInterval = setInterval(() => {
+        x++;
+        console.log(executionTime);
+        console.log(typeof executionTime);
+        if(x === executionTime || userStates[conversationSid].reply){
+          res.status(200).send(userStates[conversationSid].lastMessage);
+          userStates[conversationSid].reply = false;
+          clearInterval(myInterval); 
+        }
+      }, 1000);
 
-app.post('/user-response', async (req, res) => {
-  const { conversationSid, userMessage } = req.body;
-
-  if (!conversationSid || !userMessage) {
-    res.status(400).json({ error: "conversationSid or userMessage missing" });
-    return;
-  }
-
-  try {
-    // Update user state or perform any necessary actions based on user response
-    console.log(`User responded in conversation ${conversationSid}: ${userMessage}`);
-
-    // Check if the user wants to end the conversation
-    if (userMessage.toLowerCase().includes('sair')) {
-      // End the conversation and remove user state
-      delete userStates[conversationSid];
+        break;
     }
-
-    // Send user's message back to Twilio Studio
-    const response = await client.studio.v2.flows(process.env.TWILIO_FLOW_SID)
-      .executions
-      .create({
-        to: conversationSid,
-        from: 'Web App App', // Verifique se 'Web App App' é um identificador válido para envio
-        parameters: { userMessage }
-      });
-
-    console.log("Resposta do usuário enviada para o Twilio Studio:", response);
-
-    // Continue waiting for more user messages
-    res.status(200).json({ success: true, responseMessage: "User response received" });
-  } catch (error) {
-    console.error("Erro ao processar resposta do usuário:", error);
-    res.status(500).json({ error: "Erro ao processar resposta do usuário" });
-  }
-});
-
-
-
-async function enviarMensagemParaChat(conversationSid, message) {
-  await client.conversations.v1.conversations(conversationSid)
-    .messages
-    .create({ body: message })
-    .then(message => console.log("Mensagem enviada para o chat:", message.sid))
-    .catch(error => console.error("Erro ao enviar a mensagem para o chat:", error));
-}
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Example app listening at http://localhost:${PORT}`);
-});
-
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const twilio = require('twilio');
-const { User } = require("@twilio/conversations");
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-const port = process.env.PORT || 5000;
-
-const AccessToken = twilio.jwt.AccessToken;
-const ChatGrant = AccessToken.ChatGrant;
-
-const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
-const twilioApiKey = process.env.TWILIO_API_KEY_SID;
-const twilioApiSecret = process.env.TWILIO_API_KEY_SECRET;
-const serviceSid = process.env.TWILIO_CONVERSATIONS_SERVICE_SID;
-
-const userStates = {}; // Estrutura de dados para armazenar o estado do usuário
-
-function getAccessToken(user) {
-  const token = new AccessToken(
-    twilioAccountSid,
-    twilioApiKey,
-    twilioApiSecret,
-    { identity: user }
-  );
-  token.addGrant(new ChatGrant({
-    serviceSid: serviceSid,
-  }));
-  return token.toJwt();
-}
-
-app.get("/", (req, res) => {
-  res.send("Server is up and running!");
-});
-
-app.get("/auth/user/:user", (req, res) => {
-  try {
-    const jwt = getAccessToken(req.params.user);
-    res.send({ token: jwt });
-  } catch (error) {
-    console.log("Erro ao gerar token:", error);
-    res.status(500).send("Erro ao gerar token");
-  }
-});
-
-app.post("/reconnect/:user", async (req, res) => {
-  try {
-    const user = req.params.user;
-    const state = userStates[user];
-
-    if (state === "disconnected" || state === "denied") {
-      const jwt = getAccessToken(user);
-      userStates[user] = "connected";
-      res.send({ token: jwt });
-    } else {
-      res.status(200).send({ message: "User is already connected" });
-    }
-  } catch (error) {
-    console.log("Erro ao conectar:", error);
-    res.status(500).send("Erro ao conectar");
-  }
-});
-
-async function getExecutionContext(flowSid, executionSid, retries = 5) {
-  while (retries > 0) {
-    try {
-      const executionContext = await client.studio.v2.flows(flowSid)
-        .executions(executionSid)
-        .executionContext()
-        .fetch();
-      return executionContext;
-    } catch (error) {
-      if (error.status === 404) {
-        console.log(`Contexto não encontrado, tentando novamente (${retries} tentativas restantes)...`);
-        retries -= 1;
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Aguarda 1 segundo antes de tentar novamente
-      } else {
-        throw error;
-      }
-    }
-  }
-  throw new Error('Falha ao buscar o contexto da execução após múltiplas tentativas');
-}
-
-app.post('/trigger-flow', async (req, res) => {
-  try {
-    const { conversationSid, message } = req.body;
-
-    if (!conversationSid || !message) {
-      res.status(400).send({ error: "conversationSid ou message ausentes" });
-      return;
-    }
-
-    const flowSid = process.env.TWILIO_FLOW_SID;
-
-    const execution = await client.studio.v2.flows(flowSid).executions.create({
-      to: conversationSid,
-      from: 'Web App App', // Certifique-se que 'Web App App' é um identificador válido
-      parameters: { message }
-    });
-
-    // Armazenar o estado atual do usuário
-    userStates[conversationSid] = { step: 1, lastMessage: message, executionSid: execution.sid };
-
-    res.status(200).json({ success: true, responseMessage: "Mensagem recebida", userMessage: message });
-  } catch (error) {
-    console.error("Erro ao acionar o fluxo:", error);
-    res.status(500).json({ error: "Erro ao acionar o fluxo" });
-  }
-});
-
-app.post('/continue-flow', async (req, res) => {
-  try {
-    const { conversationSid, message } = req.body;
-
-    if (!conversationSid || !message) {
-      res.status(400).send({ error: "conversationSid ou message ausentes" });
-      return;
-    }
-
-    const state = userStates[conversationSid];
-    if (!state) {
-      res.status(400).send({ error: "Estado do usuário não encontrado" });
-      return;
-    }
-
-    // Continue the flow based on user's message
-    const response = await client.studio.v2.flows(process.env.TWILIO_FLOW_SID)
-      .executions(state.executionSid)
-      .executionContext()
-      .update({
-        parameters: { message }
-      });
-
-    // Atualizar o estado do usuário
-    userStates[conversationSid].lastMessage = message;
-
-    res.status(200).json({ success: true, responseMessage: "Mensagem processada com sucesso", message });
-  } catch (error) {
-    console.error("Erro ao processar resposta do usuário:", error);
-    res.status(500).json({ error: "Erro ao processar resposta do usuário" });
-  }
-});
-
-
-app.post('/twilio-webhook', async (req, res) => {
-  console.log("Resposta do Twilio Studio:", req.body);
-
-  const { conversationSid, message } = req.body;
-
-  console.log("O conversationSid retornado pela Twilio é:", conversationSid);
-  console.log("A mensagem enviada pela Twilio é:", message);
-
-  if (!conversationSid || !message) {
-    console.error("Erro: conversationSid ou message ausentes");
-    console.log('Payload recebido:', req.body);
-    res.status(400).send({ error: "conversationSid ou message ausentes" });
-    return;
-  }
-
-  try {
-    // Armazenar o estado atual do usuário
-    if (!userStates[conversationSid]) {
-      userStates[conversationSid] = { step: 1, lastMessage: message };
-    } else {
-      userStates[conversationSid].lastMessage = message;
-    }
-
-    // Enviar mensagem ao frontend para exibir a resposta
-    await enviarMensagemParaChat(conversationSid, message);
-
-    res.status(200).json({ success: true, responseMessage: "Mensagem processada com sucesso", message });
+    
 
   } catch (error) {
     console.error("Erro ao processar mensagem do Twilio:", error);
