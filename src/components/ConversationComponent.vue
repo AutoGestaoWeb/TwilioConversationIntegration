@@ -23,6 +23,7 @@ export default {
       type: Object,
       required: true,
     },
+    
     name: {
       type: String,
       required: true,
@@ -33,6 +34,7 @@ export default {
       messages: [],
       messageText: "",
       isSending: false,
+      isFirstMessage: true,
     };
   },
   mounted() {
@@ -77,6 +79,7 @@ export default {
           body: JSON.stringify({
             conversationSid: this.activeConversation.sid,
             message: this.messageText,
+            name: this.name
           }),
         });
 
