@@ -202,8 +202,6 @@ app.post('/twilio-webhook', async (req, res) => {
       case 'website_reply':
         myInterval = setInterval(() => {
           x++;
-          console.log(executionTime);
-          console.log(typeof executionTime);
           if(x == executionTime || userStates[conversationSid].reply){
             const reply = userStates[conversationSid].reply ? 'reply' : 'no-reply'
             userStates[conversationSid].reply = false;
@@ -211,6 +209,10 @@ app.post('/twilio-webhook', async (req, res) => {
             clearInterval(myInterval);
           }
         }, 1000);  
+        break;
+      case 'nomatch':
+        userStates[conversationSid].reply = false;
+        res.status(200).send({replyStatus: reply, message: userStates[conversationSid].lastMessage});
         break;
     
       default:
