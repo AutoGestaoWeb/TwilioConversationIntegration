@@ -10,7 +10,8 @@ Requisitos:
 . Node.js v14 ou superior
 . Vue.js v2.6.12 ou superior
 . Twilio Node.Js SDK
-. outras dependências listadas no arquivo "packege.json"
+. outras dependências listadas no arquivo "packege.json" 
+Editando
 
 # conversations-project
 
