@@ -20,7 +20,12 @@ Configure as variáveis de ambiente necessárias. Crie um arquivo .env na raiz d
 
 #### TWILIO_ACCOUNT_SID=seu_account_sid
 #### TWILIO_AUTH_TOKEN=seu_auth_token
-#### TWILIO_SERVICE_SID=seu_service_sid
+#### TWILIO_API_KEY_SID=seu_api_token
+#### TWILIO_API_KEY_SECRET=seu_api_key_secret
+#### TWILIO_CONVERSATIONS_SERVICE_SID=seu_conversationsid
+#### TWILIO_FLOW_SID=seu_twilio_flowsid
+#### EXECUTION_TIME= 10
+
 
 # Uso
 
