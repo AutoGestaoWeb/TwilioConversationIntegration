@@ -46,16 +46,13 @@ Contribuições são bem-vindas! Para contribuir, siga os passos abaixo:
 
 Faça um fork deste repositório.
 Crie uma nova branch para sua feature ou correção de bug:
-bash
-Copiar código
+
 git checkout -b minha-feature
 Faça as alterações necessárias e commit:
-bash
-Copiar código
+
 git commit -m "Adiciona minha nova feature"
 Envie suas alterações para o seu fork:
-bash
-Copiar código
+
 git push origin minha-feature
 Abra um Pull Request neste repositório.
 Licença
