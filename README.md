@@ -20,7 +20,12 @@ Configure as variáveis de ambiente necessárias. Crie um arquivo .env na raiz d
 
 #### TWILIO_ACCOUNT_SID=seu_account_sid
 #### TWILIO_AUTH_TOKEN=seu_auth_token
-#### TWILIO_SERVICE_SID=seu_service_sid
+#### TWILIO_API_KEY_SID=seu_api_token
+#### TWILIO_API_KEY_SECRET=seu_api_key_secret
+#### TWILIO_CONVERSATIONS_SERVICE_SID=seu_conversationsid
+#### TWILIO_FLOW_SID=seu_twilio_flowsid
+#### EXECUTION_TIME= 10
+
 
 # Uso
 
@@ -41,16 +46,13 @@ Contribuições são bem-vindas! Para contribuir, siga os passos abaixo:
 
 Faça um fork deste repositório.
 Crie uma nova branch para sua feature ou correção de bug:
-bash
-Copiar código
+
 git checkout -b minha-feature
 Faça as alterações necessárias e commit:
-bash
-Copiar código
+
 git commit -m "Adiciona minha nova feature"
 Envie suas alterações para o seu fork:
-bash
-Copiar código
+
 git push origin minha-feature
 Abra um Pull Request neste repositório.
 Licença
