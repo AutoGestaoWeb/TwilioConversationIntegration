@@ -8,10 +8,13 @@
           <div class="message">{{ message.body }}</div>
         </div>
       </div>
-    </div>
-    <div class="input-container">
-      <input v-model="messageText" @keyup.enter="sendMessage" placeholder="Enter your message" />
-      <button @click="sendMessage" :disabled="isSending">{{ isSending ? 'Sending...' : 'Send' }}</button>
+      <div class="input-container">
+        <textarea v-model="messageText" @keyup.enter="sendMessage" class="form-control"
+          placeholder="Digite sua mensagem" /> <!-- Modificado para ocupar toda a largura -->
+        <button @click="sendMessage" :disabled="isSending" class="btn btn-success">
+          <i class="bi bi-send"></i>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -108,25 +111,26 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 body,
 html {
-  height: 100%;
   margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f9f9f9;
+  height: 100%;
 }
 
 .conversation-container {
   margin: 0 auto;
-  max-width: 50%;
-  height: 700px;
+  width: 100%;
+  height: 800px;
   padding: 0 20px;
-  border: 3px solid #f1f1f1;
-  overflow: scroll;
+  overflow: auto;
+
+  /* Mudança de scroll para auto */
 }
+
 
 
 .bubble-container {
@@ -135,60 +139,80 @@ html {
   margin: 10px 0;
 }
 
+
 .bubble {
   display: inline-block;
   border: 2px solid #f1f1f1;
   background-color: #fdfbfa;
   border-radius: 10px;
   padding: 10px;
-  max-width: 70%;
+  max-width: 40%;
   word-wrap: break-word;
 }
 
 .myMessage .bubble {
-  background-color: #abf1ea;
-  border: 2px solid #87E0D7;
+  background-color: #008069;
+  border: 1px solid #6666667c;
   align-self: flex-end;
+  color: rgb(255, 255, 255);
+  text-align: start;
 }
 
 .bubble-container:not(.myMessage) .bubble {
+  background-color: rgb(253, 253, 253);
+  border: 1px solid #49494996;
   align-self: flex-start;
+  color: rgb(0, 0, 0);
+  text-align: start;
 }
 
 .name {
   font-size: 12px;
   font-weight: bold;
   margin-bottom: 5px;
+  text-align: left;
 }
 
 .message {
   font-size: 14px;
 }
 
-
 .input-container {
-  display: inline-block;
-  justify-content: center;
-  align-content: center;
+  display: flex;
   border-top: 1px solid #f1f1f1;
-  width: 100%;
+  background-color: #f9f9f9;
+  padding: 10px;
   box-sizing: border-box;
-  margin-top: auto;
-  /* Adiciona margem superior automática para ocupar o espaço restante */
+  width: 100%;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  background: #fff;
 }
 
-.input-container input {
-  justify-content: center;
-  margin-right: 10px;
+
+/* Estilo para o input de mensagem */
+.input-container textarea {
+  flex: 1;
+  height: auto;
+  min-height: 40px;
+  max-height: 150px;
   padding: 10px;
+  font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 5px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  /* Quebrar as palavras longas */
 }
 
+
+/* Estilo para o botão de enviar */
 .input-container button {
   padding: 10px 20px;
   border: none;
-  background-color: #007bff;
+  background-color: rgb(167, 219, 46);
   color: white;
   border-radius: 5px;
   cursor: pointer;
@@ -199,19 +223,59 @@ html {
   cursor: not-allowed;
 }
 
+/* Estilizar a barra de rolagem para afastá-la da conversa */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 12px;
+  /* Largura do scrollbar */
 }
 
 ::-webkit-scrollbar-track {
   background: #f1f1f1;
+  margin: 20px 0;
+  /* Adiciona margem para afastar o scroll */
 }
 
 ::-webkit-scrollbar-thumb {
   background: #888;
+  border-radius: 6px;
+  border: 3px solid transparent;
+  /* Aumenta a largura e cria espaço ao redor do thumb */
+  background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .bubble {
+    max-width: 70%;
+  }
+
+  .input-container textarea {
+    font-size: 14px;
+  }
+
+  .input-container button {
+    padding: 10px;
+    font-size: 14px;
+  }
+}
+
+/* Tablets */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .bubble {
+    max-width: 60%;
+  }
+
+  .input-container textarea {
+    font-size: 16px;
+  }
+
+  .input-container button {
+    padding: 12px 16px;
+    font-size: 16px;
+  }
 }
 </style>

@@ -1,21 +1,23 @@
 <template>
+
   <div id="chat">
-    <h1>
-      Welcome to the Vue chat app<span v-if="nameRegistered">, {{ name }}</span>!
+    <h1 class="titulo">
+      Seja bem vindo a AGWeb<span v-if="nameRegistered">, {{ name }}</span>!
     </h1>
-    <p>{{ statusString }}</p>
+    <p>
+      <i v-if="isConnected" class="bi bi-circle-fill text-success"></i>
+      <i v-else class="bi bi-circle-fill text-danger">Desconectado</i>
+      {{ statusString }}
+    </p> <!-- Adicionado ícone de status -->
     <div v-if="!nameRegistered">
-      <input @keyup.enter="registerName" v-model="name" placeholder="Enter your name" />
-      <button @click="registerName">Register name</button>
+      <input @keyup.enter="registerName" v-model="name" placeholder="Digite seu nome" />
+      <button @click="registerName">Entrar</button>
     </div>
+    <!--
     <div v-if="nameRegistered && !activeConversation && isConnected">
-      <button @click="createOrJoinConversation">Join chat</button>
-    </div>
-    <ConversationComponent
-      v-if="activeConversation"
-      :active-conversation="activeConversation"
-      :name="name"
-    />
+      <button @click="createOrJoinConversation">Iniciar Conversa!</button>
+    </div> -->
+    <ConversationComponent v-if="activeConversation" :active-conversation="activeConversation" :name="name" />
   </div>
 </template>
 
@@ -44,26 +46,27 @@ export default {
         this.conversationsClient.on("connectionStateChanged", (state) => {
           switch (state) {
             case "connected":
-              this.statusString = "You are connected.";
+              this.statusString = "Você está conectado";
               this.isConnected = true;
+              this.createOrJoinConversation();
               break;
             case "disconnecting":
-              this.statusString = "Disconnecting from Twilio…";
+              this.statusString = "Desconectando...";
               break;
             case "disconnected":
-              this.statusString = "Disconnected.";
+              this.statusString = "Desconectado.";
               this.isConnected = false;
               break;
             case "denied":
-              this.statusString = "Failed to connect.";
+              this.statusString = "Falha ao conectar";
               this.isConnected = false;
               break;
             default:
-              this.statusString = `Unknown connection state: ${state}`;
+              this.statusString = `Estado de conexão desconhecido: ${state}`;
           }
         });
       } catch (error) {
-        console.error("Error initializing Twilio Conversations client:", error);
+        console.error("Erro ao iniciar.", error);
       }
     },
 
@@ -72,7 +75,7 @@ export default {
         this.nameRegistered = true;
         await this.initConversationsClient();
       } catch (error) {
-        console.error("Error registering name:", error);
+        console.error("Erro ao registrar o nome", error);
       }
     },
 
@@ -93,7 +96,7 @@ export default {
             await this.addParticipantToConversation(newConversation.sid, "AGWeb");
             await this.addParticipantToConversation(newConversation.sid, this.name);
           } catch (createError) {
-            console.error("Error creating conversation:", createError);
+            console.error("Erro ao criar a conversa", createError);
           }
         } else {
           console.error("Error fetching conversation:", error);
@@ -143,17 +146,14 @@ export default {
 
 
 <style scoped>
-ul {
-  list-style-type: none;
-  padding: 0;
-}
+/* Adicionado Bootstrap Icons */
+@import 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css';
+@import 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css';
 
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-
-a {
-  color: #42b983;
+.titulo {
+  font-family: "Encode Sans", Sans-serif;
+  font-size: 28px;
+  padding: 40px 0px 10px 0px;
+  margin-top: 40px
 }
 </style>

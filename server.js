@@ -9,7 +9,6 @@ app.use(cors());
 app.use(express.json());
 
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-const port = process.env.PORT || 5000;
 
 const AccessToken = twilio.jwt.AccessToken;
 const ChatGrant = AccessToken.ChatGrant;
@@ -66,26 +65,6 @@ app.post("/reconnect/:user", async (req, res) => {
   }
 });
 
-async function getExecutionContext(flowSid, executionSid, retries = 5) {
-  while (retries > 0) {
-    try {
-      const executionContext = await client.studio.v2.flows(flowSid)
-        .executions(executionSid)
-        .executionContext()
-        .fetch();
-      return executionContext;
-    } catch (error) {
-      if (error.status === 404) {
-        console.log(`Contexto não encontrado, tentando novamente (${retries} tentativas restantes)...`);
-        retries -= 1;
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Aguarda 1 segundo antes de tentar novamente
-      } else {
-        throw error;
-      }
-    }
-  }
-  throw new Error('Falha ao buscar o contexto da execução após múltiplas tentativas');
-}
 
 app.post('/trigger-flow', async (req, res) => {
   try {

@@ -16,27 +16,40 @@ export default {
 
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Encode Sans", Sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin: 0;
+  height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body {
+  background: url('/public/fundo.png') no-repeat center center fixed;
+  background-size: cover;
 }
 
 #app input {
   padding: 12px 20px;
   margin: 8px 0;
   display: inline-block;
-  border: 1px solid #ccc;
+  border: 1px solid #000000;
   border-radius: 4px;
   box-sizing: border-box;
   margin-right: 5px;
   width: 300px;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  background: #fff;
 }
 
 #app button {
-  background-color: #21cfbc;
+  background-color: rgb(0, 0, 0);
   color: white;
   padding: 14px 20px;
   margin: 8px 0;
