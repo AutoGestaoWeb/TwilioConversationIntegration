@@ -30,6 +30,7 @@ export default {
 
 body {
   background: url('/public/fundo.png') no-repeat center center fixed;
+  /*Papel de parede da conversa*/
   background-size: cover;
 }
 

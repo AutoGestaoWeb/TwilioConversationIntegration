@@ -9,6 +9,9 @@
         </div>
       </div>
       <div class="input-container">
+
+        <!--Mudança de input para textarea-->
+
         <textarea v-model="messageText" @keyup.enter="sendMessage" class="form-control"
           placeholder="Digite sua mensagem" /> <!-- Modificado para ocupar toda a largura -->
         <button @click="sendMessage" :disabled="isSending" class="btn btn-success">
@@ -121,16 +124,15 @@ html {
   height: 100%;
 }
 
+/* Modificações para o chat*/
+
 .conversation-container {
   margin: 0 auto;
   width: 100%;
   height: 800px;
   padding: 0 20px;
   overflow: auto;
-
-  /* Mudança de scroll para auto */
 }
-
 
 
 .bubble-container {
@@ -138,7 +140,6 @@ html {
   flex-direction: column;
   margin: 10px 0;
 }
-
 
 .bubble {
   display: inline-block;
@@ -190,8 +191,6 @@ html {
   background: #fff;
 }
 
-
-/* Estilo para o input de mensagem */
 .input-container textarea {
   flex: 1;
   height: auto;
@@ -203,11 +202,8 @@ html {
   border-radius: 5px;
   box-sizing: border-box;
   word-wrap: break-word;
-  /* Quebrar as palavras longas */
 }
 
-
-/* Estilo para o botão de enviar */
 .input-container button {
   padding: 10px 20px;
   border: none;
@@ -222,23 +218,21 @@ html {
   cursor: not-allowed;
 }
 
-/* Estilizar a barra de rolagem para afastá-la da conversa */
+
+/* Estlizações para a barra de rolagem */
 ::-webkit-scrollbar {
   width: 12px;
-  /* Largura do scrollbar */
 }
 
 ::-webkit-scrollbar-track {
   background: #f1f1f1;
   margin: 20px 0;
-  /* Adiciona margem para afastar o scroll */
 }
 
 ::-webkit-scrollbar-thumb {
   background: #888;
   border-radius: 6px;
   border: 3px solid transparent;
-  /* Aumenta a largura e cria espaço ao redor do thumb */
   background-clip: padding-box;
 }
 
@@ -246,7 +240,7 @@ html {
   background: #555;
 }
 
-/* Mobile */
+/* Responsividade para Mobile */
 @media (max-width: 600px) {
   .bubble {
     max-width: 70%;
@@ -262,7 +256,7 @@ html {
   }
 }
 
-/* Tablets */
+/* Responsividade para Tablets */
 @media (min-width: 601px) and (max-width: 1024px) {
   .bubble {
     max-width: 60%;

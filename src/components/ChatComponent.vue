@@ -17,6 +17,7 @@
     <div v-if="nameRegistered && !activeConversation && isConnected">
       <button @click="createOrJoinConversation">Iniciar Conversa!</button>
     </div> -->
+
     <ConversationComponent v-if="activeConversation" :active-conversation="activeConversation" :name="name" />
   </div>
 </template>
@@ -48,7 +49,7 @@ export default {
             case "connected":
               this.statusString = "Você está conectado";
               this.isConnected = true;
-              this.createOrJoinConversation();
+              this.createOrJoinConversation();      //Chamando a função assim que ficar conectado para evitar mais uma confirmação
               break;
             case "disconnecting":
               this.statusString = "Desconectando...";
@@ -146,7 +147,8 @@ export default {
 
 
 <style scoped>
-/* Adicionado Bootstrap Icons */
+/* Importanto biblioteca para ícones*/
+
 @import 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css';
 @import 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css';
 
