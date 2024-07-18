@@ -195,13 +195,12 @@ html {
 .input-container textarea {
   flex: 1;
   height: auto;
-  min-height: 40px;
+  min-height: 20px;
   max-height: 150px;
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  margin-bottom: 10px;
   box-sizing: border-box;
   word-wrap: break-word;
   /* Quebrar as palavras longas */
