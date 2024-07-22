@@ -155,7 +155,20 @@ export default {
 .titulo {
   font-family: "Encode Sans", Sans-serif;
   font-size: 28px;
-  padding: 40px 0px 10px 0px;
-  margin-top: 40px
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  /* Garante a quebra de palavras longas */
+  white-space: normal;
+  /* Permite quebra de linha no texto */
+  text-align: center;
+  padding: 0 10px;
+}
+
+@media (max-width: 600px) {
+  .titulo {
+    font-size: 24px;
+
+  }
+
 }
 </style>

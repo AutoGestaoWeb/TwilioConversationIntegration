@@ -13,7 +13,7 @@
         <!--Mudança de input para textarea-->
 
         <textarea v-model="messageText" @keyup.enter="sendMessage" class="form-control"
-          placeholder="Digite sua mensagem" /> <!-- Modificado para ocupar toda a largura -->
+          placeholder="Digite sua mensagem"></textarea>
         <button @click="sendMessage" :disabled="isSending" class="btn btn-success">
           <i class="bi bi-send"></i>
         </button>
@@ -122,16 +122,29 @@ html {
   justify-content: center;
   align-items: center;
   height: 100%;
+  overflow: hidden;
+  /* Impede o scroll na tela inteira */
 }
 
 /* Modificações para o chat*/
 
+#conversation {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  /* Altura máxima para o contêiner */
+}
+
+
 .conversation-container {
   margin: 0 auto;
   width: 100%;
-  height: 800px;
   padding: 0 20px;
   overflow: auto;
+  flex: 1;
 }
 
 
@@ -243,14 +256,23 @@ html {
 /* Responsividade para Mobile */
 @media (max-width: 600px) {
   .bubble {
-    max-width: 70%;
+    max-width: 60%;
   }
 
   .input-container textarea {
     font-size: 14px;
   }
 
-  .input-container button {
+  #conversation {
+    max-height: 75vh;
+    /* Altura máxima para o contêiner */
+  }
+
+  .conversation-container {
+    width: 90%;
+  }
+
+  #conversartion .input-container button {
     padding: 10px;
     font-size: 14px;
   }
@@ -258,16 +280,19 @@ html {
 
 /* Responsividade para Tablets */
 @media (min-width: 601px) and (max-width: 1024px) {
-  .bubble {
-    max-width: 60%;
+  .conversation-container {
+    width: 95%;
+    padding: 0 15px;
+    /* Ajuste o padding conforme necessário */
   }
 
   .input-container textarea {
     font-size: 16px;
+    min-height: 40px;
   }
 
   .input-container button {
-    padding: 12px 16px;
+    padding: 12px 18px;
     font-size: 16px;
   }
 }
