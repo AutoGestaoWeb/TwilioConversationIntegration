@@ -215,6 +215,7 @@ html {
   border-radius: 5px;
   box-sizing: border-box;
   word-wrap: break-word;
+  margin-right: 20px;
 }
 
 .input-container button {
