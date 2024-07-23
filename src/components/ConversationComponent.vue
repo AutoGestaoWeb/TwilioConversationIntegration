@@ -8,16 +8,17 @@
           <div class="message">{{ message.body }}</div>
         </div>
       </div>
-      <div class="input-container">
-
-        <!--Mudança de input para textarea-->
-
-        <textarea v-model="messageText" @keyup.enter="sendMessage" class="form-control"
-          placeholder="Digite sua mensagem"></textarea>
-        <button @click="sendMessage" :disabled="isSending" class="btn btn-success">
-          <i class="bi bi-send"></i>
-        </button>
-      </div>
+    </div>
+    <!--A div "input-container" foi movida para fora da div "conversation-container" para que ela não 
+    fizesse parte da área rolável da página, ou seja, para que a barra de rolagem não ultrapasse os limites da div principal-->
+    <div class="input-container">
+      <!--Mudança de input para textarea, além disso, o evento adjustTextareaHeight foi adicionado para garantir
+      que a altura do textarea seja ajustada automaticamente conforme o usuário digita as mensagens -->
+      <textarea v-model="messageText" @keyup.enter="sendMessage" @input="adjustTextareaHeight" class="form-control"
+        placeholder="Digite sua mensagem"></textarea>
+      <button @click="sendMessage" :disabled="isSending" class="btn btn-success">
+        <i class="bi bi-send"></i>
+      </button>
     </div>
   </div>
 </template>
@@ -29,7 +30,6 @@ export default {
       type: Object,
       required: true,
     },
-
     name: {
       type: String,
       required: true,
@@ -49,6 +49,9 @@ export default {
       this.messages.push(message);
       this.scrollToBottom();
     });
+    // Adiciona um ouvinte de evento para ajustar a altura do textarea
+    const textarea = this.$el.querySelector('textarea');
+    textarea.addEventListener('input', this.adjustTextareaHeight);
   },
   methods: {
     async loadMessages() {
@@ -104,6 +107,15 @@ export default {
         this.scrollToBottom();
       }
     },
+    /*
+    Função criada para ajustar dinamicamente a altura do textarea conforme o usuário digita a mensagem, o evento 'input'
+    chama essa função sempre que o conteúdo do textarea muda
+    */
+    adjustTextareaHeight(event) {
+      const textarea = event.target;
+      textarea.style.height = 'auto'; // Reseta a altura
+      textarea.style.height = `${textarea.scrollHeight}px`; // Ajusta para o scrollHeight
+    },
     scrollToBottom() {
       this.$nextTick(() => {
         const container = this.$el.querySelector(".conversation-container");
@@ -126,18 +138,14 @@ html {
   /* Impede o scroll na tela inteira */
 }
 
-/* Modificações para o chat*/
-
 #conversation {
   display: flex;
   flex-direction: column;
   height: 100%;
   width: 100%;
   max-height: 80vh;
-  overflow: hidden;
   /* Altura máxima para o contêiner */
 }
-
 
 .conversation-container {
   margin: 0 auto;
@@ -146,7 +154,6 @@ html {
   overflow: auto;
   flex: 1;
 }
-
 
 .bubble-container {
   display: flex;
@@ -191,19 +198,23 @@ html {
   font-size: 14px;
 }
 
+/*
+Alinhei os itens como flex-end para que botão de envio da mensagem fique alinhado no final do campo textarea. 
+*/ 
 .input-container {
-  display: flex;
-  border-top: 1px solid #f1f1f1;
-  background-color: #f9f9f9;
+  display: inline-flex;
+  align-items: flex-end;
+  /* Alinha o botão com o final do textarea */
+  border-top: 1px;
+  background-color: #f9f9f900;
   padding: 10px;
   box-sizing: border-box;
   width: 100%;
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  background: #fff;
+  background: #ffffff00;
 }
 
+/* O campo textarea agora possui resize: none, isso evita que o redimensionamento manual seja feito, além disso, o campo
+"cresce" automaticamente conforme o texto é digitado, fazendo com que o botão de envio da mensagem fique na posição correta*/
 .input-container textarea {
   flex: 1;
   height: auto;
@@ -215,7 +226,9 @@ html {
   border-radius: 5px;
   box-sizing: border-box;
   word-wrap: break-word;
-  margin-right: 20px;
+  margin-right: 10px;
+  resize: none;
+  /* Desabilita o redimensionamento manual */
 }
 
 .input-container button {
@@ -232,8 +245,7 @@ html {
   cursor: not-allowed;
 }
 
-
-/* Estlizações para a barra de rolagem */
+/* Estilizações para a barra de rolagem */
 ::-webkit-scrollbar {
   width: 12px;
 }
@@ -273,7 +285,7 @@ html {
     width: 90%;
   }
 
-  #conversartion .input-container button {
+  #conversation .input-container button {
     padding: 10px;
     font-size: 14px;
   }
