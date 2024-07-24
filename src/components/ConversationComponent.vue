@@ -10,7 +10,9 @@
       </div>
     </div>
     <div class="input-container">
-      <textarea v-model="messageText" @keyup.enter="sendMessage" @input="adjustTextareaHeight" class="form-control"
+      <!--Mudança de input para textarea, além disso, o evento adjustTextareaHeight foi adicionado para garantir
+      que a altura do textarea seja ajustada automaticamente conforme o usuário digita as mensagens -->
+      <textarea v-model="messageText" @keydown.enter="handleEnter" @input="adjustTextareaHeight" class="form-control"
         placeholder="Digite sua mensagem"></textarea>
       <button @click="sendMessage" :disabled="isSending" class="btn btn-success">
         <i class="bi bi-send"></i>
@@ -66,6 +68,13 @@ export default {
         console.error("Error loading messages:", error);
       }
     },
+    handleEnter(event) {
+      if (event.shiftKey) {
+        return;
+      }
+      event.preventDefault();
+      this.sendMessage();
+    },
     async sendMessage() {
       if (!this.activeConversation) {
         console.error("No active conversation to send message to.");
@@ -103,6 +112,7 @@ export default {
         console.log("Flow triggered successfully:", data);
 
         this.messageText = "";
+        this.resetTextareaHeight(); // Reseta a altura da textarea após o envio da mensagem
       } catch (error) {
         console.error("Error triggering Flow:", error);
       } finally {
@@ -114,10 +124,15 @@ export default {
     Função criada para ajustar dinamicamente a altura do textarea conforme o usuário digita a mensagem, o evento 'input'
     chama essa função sempre que o conteúdo do textarea muda
     */
+
     adjustTextareaHeight(event) {
       const textarea = event.target;
       textarea.style.height = 'auto'; // Reseta a altura
       textarea.style.height = `${textarea.scrollHeight}px`; // Ajusta para o scrollHeight
+    },
+    resetTextareaHeight() {
+      const textarea = this.$el.querySelector('textarea');
+      textarea.style.height = 'auto'; // Reseta a altura
     },
     scrollToBottom() {
       this.$nextTick(() => {
@@ -157,6 +172,7 @@ html {
   overflow: auto;
   flex: 1;
 }
+
 
 .bubble-container {
   display: flex;
@@ -219,7 +235,7 @@ Alinhei os itens como flex-end para que botão de envio da mensagem fique alinha
 /* O campo textarea agora possui resize: none, isso evita que o redimensionamento manual seja feito, além disso, o campo
 "cresce" automaticamente conforme o texto é digitado, fazendo com que o botão de envio da mensagem fique na posição correta*/
 .input-container textarea {
-  flex: 1;
+  flex-grow: 1;
   height: auto;
   min-height: 20px;
   max-height: 150px;
@@ -231,7 +247,6 @@ Alinhei os itens como flex-end para que botão de envio da mensagem fique alinha
   word-wrap: break-word;
   margin-right: 10px;
   resize: none;
-  /* Desabilita o redimensionamento manual */
 }
 
 .input-container button {
@@ -280,17 +295,23 @@ Alinhei os itens como flex-end para que botão de envio da mensagem fique alinha
   }
 
   #conversation {
-    max-height: 75vh;
-    /* Altura máxima para o contêiner */
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    /* Ocupa toda a altura da tela */
   }
 
   .conversation-container {
-    width: 90%;
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
   }
 
-  #conversation .input-container button {
-    padding: 10px;
-    font-size: 14px;
+  .input-container {
+    width: 100%;
+    padding: 10px 20px 10px 20px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ccc;
   }
 }
 
@@ -310,6 +331,41 @@ Alinhei os itens como flex-end para que botão de envio da mensagem fique alinha
   .input-container button {
     padding: 12px 18px;
     font-size: 16px;
+  }
+}
+
+/* Ajustes adicionais para telas menores que 400px */
+@media (max-width: 400px) {
+  .bubble {
+    max-width: 50%;
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .name {
+    font-size: 10px;
+  }
+
+  .message {
+    font-size: 12px;
+  }
+
+  .input-container {
+    padding: 5px;
+  }
+
+  .input-container textarea {
+    font-size: 12px;
+    padding: 5px;
+  }
+
+  .input-container button {
+    padding: 5px 5px;
+    font-size: 10px;
+  }
+
+  .conversation-container {
+    padding: 5px;
   }
 }
 </style>

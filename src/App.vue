@@ -21,11 +21,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin: 0;
-  height: 80vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 body {
@@ -42,7 +37,7 @@ body {
   border-radius: 4px;
   box-sizing: border-box;
   margin-right: 5px;
-  width: 300px;
+  width: 70%;
   position: sticky;
   bottom: 0;
   left: 0;
