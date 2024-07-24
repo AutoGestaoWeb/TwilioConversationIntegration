@@ -5,15 +5,11 @@
         :class="{ myMessage: message.author === name }">
         <div class="bubble">
           <div class="name">{{ message.author }}:</div>
-          <div class="message">{{ message.body }}</div>
+          <div class="message" v-html="formatMessage(message.body)"></div>
         </div>
       </div>
     </div>
-    <!--A div "input-container" foi movida para fora da div "conversation-container" para que ela não 
-    fizesse parte da área rolável da página, ou seja, para que a barra de rolagem não ultrapasse os limites da div principal-->
     <div class="input-container">
-      <!--Mudança de input para textarea, além disso, o evento adjustTextareaHeight foi adicionado para garantir
-      que a altura do textarea seja ajustada automaticamente conforme o usuário digita as mensagens -->
       <textarea v-model="messageText" @keyup.enter="sendMessage" @input="adjustTextareaHeight" class="form-control"
         placeholder="Digite sua mensagem"></textarea>
       <button @click="sendMessage" :disabled="isSending" class="btn btn-success">
@@ -54,6 +50,13 @@ export default {
     textarea.addEventListener('input', this.adjustTextareaHeight);
   },
   methods: {
+    formatMessage(message){
+      if (message.includes('\n')) {
+        const items = message.split('\n');
+        return `<ul>${items.map(item => `<li>${item}</li>`).join('')}</ul>`;
+      }
+      return message;
+    },
     async loadMessages() {
       try {
         const newMessages = await this.activeConversation.getMessages();
@@ -200,7 +203,7 @@ html {
 
 /*
 Alinhei os itens como flex-end para que botão de envio da mensagem fique alinhado no final do campo textarea. 
-*/ 
+*/
 .input-container {
   display: inline-flex;
   align-items: flex-end;

@@ -71,10 +71,11 @@ app.post("/reconnect/:user", async (req, res) => {
 app.post('/trigger-flow', async (req, res) => {
   try {
     const { conversationSid, message, name } = req.body;
+  
     console.log(`Recebido conversationSid: '${conversationSid}', message: '${message}', name: '${name}'`);
 
-    if (!conversationSid || !message) {
-      res.status(400).send({ error: "conversationSid ou message ausentes" });
+    if (!conversationSid || !message || !name) {
+      res.status(400).send({ error: "conversationSid, message ausentes ou name ausentes" });
       return;
     }
 
@@ -82,7 +83,7 @@ app.post('/trigger-flow', async (req, res) => {
 
     const execution = await client.studio.v2.flows(flowSid).executions.create({
       to: conversationSid,
-      from: 'Web App App', // Certifique-se que 'Web App App' é um identificador válido
+      from: 'AGWeb', // Certifique-se que 'Web App App' é um identificador válido
       parameters: { message, name }
     });
     // Armazenar o estado atual do usuário
