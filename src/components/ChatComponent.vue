@@ -84,6 +84,7 @@ export default {
       try {
         let conversation = await this.conversationsClient.getConversationByUniqueName(this.name);
         this.activeConversation = conversation;
+        await this.addParticipantToConversation(conversation.sid, "AGWeb");
         await this.addParticipantToConversation(conversation.sid, this.name);
       } catch (error) {
         if (error.message.includes("Not Found")) {
@@ -93,6 +94,7 @@ export default {
             });
             await newConversation.join();
             this.activeConversation = newConversation;
+            await this.addParticipantToConversation(newConversation.sid, "AGWeb");
             await this.addParticipantToConversation(newConversation.sid, this.name);
           } catch (createError) {
             console.error("Erro ao criar a conversa", createError);
