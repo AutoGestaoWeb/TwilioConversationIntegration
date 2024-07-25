@@ -4,7 +4,7 @@
       <div v-for="message in messages" :key="message.sid" class="bubble-container"
         :class="{ myMessage: message.author === name }">
         <div class="bubble">
-          <div class="name">{{ message.author }}:</div>
+          <div class="name">{{ message.author === 'system' ? 'AGWeb' : message.author }}:</div>
           <div class="message" v-html="formatMessage(message.body)"></div>
         </div>
       </div>
@@ -52,7 +52,7 @@ export default {
     textarea.addEventListener('input', this.adjustTextareaHeight);
   },
   methods: {
-    formatMessage(message){
+    formatMessage(message) {
       if (message.includes('\n')) {
         const items = message.split('\n');
         return `<ul>${items.map(item => `<li>${item}</li>`).join('')}</ul>`;
@@ -162,6 +162,8 @@ html {
   height: 100%;
   width: 100%;
   max-height: 80vh;
+  min-height: 80vh;
+
   /* Altura máxima para o contêiner */
 }
 
@@ -169,10 +171,9 @@ html {
   margin: 0 auto;
   width: 100%;
   padding: 0 20px;
-  overflow: auto;
   flex: 1;
+  overflow-y: auto;
 }
-
 
 .bubble-container {
   display: flex;
