@@ -9,7 +9,6 @@ app.use(cors());
 app.use(express.json());
 
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-const port = process.env.PORT || 5000;
 
 const AccessToken = twilio.jwt.AccessToken;
 const ChatGrant = AccessToken.ChatGrant;
@@ -31,8 +30,11 @@ function getAccessToken(user) {
   token.addGrant(new ChatGrant({
     serviceSid: serviceSid,
   }));
+
   return token.toJwt();
+
 }
+
 
 app.get("/", (req, res) => {
   res.send("Server is up and running!");
@@ -66,42 +68,22 @@ app.post("/reconnect/:user", async (req, res) => {
   }
 });
 
-async function getExecutionContext(flowSid, executionSid, retries = 5) {
-  while (retries > 0) {
-    try {
-      const executionContext = await client.studio.v2.flows(flowSid)
-        .executions(executionSid)
-        .executionContext()
-        .fetch();
-      return executionContext;
-    } catch (error) {
-      if (error.status === 404) {
-        console.log(`Contexto não encontrado, tentando novamente (${retries} tentativas restantes)...`);
-        retries -= 1;
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Aguarda 1 segundo antes de tentar novamente
-      } else {
-        throw error;
-      }
-    }
-  }
-  throw new Error('Falha ao buscar o contexto da execução após múltiplas tentativas');
-}
-
 app.post('/trigger-flow', async (req, res) => {
   try {
     const { conversationSid, message, name } = req.body;
+  
+    console.log(`Recebido conversationSid: '${conversationSid}', message: '${message}', name: '${name}'`);
 
-    if (!conversationSid || !message) {
-      res.status(400).send({ error: "conversationSid ou message ausentes" });
+    if (!conversationSid || !message || !name) {
+      res.status(400).send({ error: "conversationSid, message ausentes ou name ausentes" });
       return;
     }
 
     const flowSid = process.env.TWILIO_FLOW_SID;
 
-    console.log('conversationSid', conversationSid);
     const execution = await client.studio.v2.flows(flowSid).executions.create({
       to: conversationSid,
-      from: 'Web App App', // Certifique-se que 'Web App App' é um identificador válido
+      from: 'AGWeb', // Certifique-se que 'Web App App' é um identificador válido
       parameters: { message, name }
     });
     // Armazenar o estado atual do usuário
@@ -153,6 +135,7 @@ app.post('/twilio-webhook', async (req, res) => {
   }
 
   try {
+    console.log(`Recebido conversationSid: '${conversationSid}', message: '${message}'`);
     // Armazenar o estado atual do usuário
     if (!userStates[conversationSid]) {
       userStates[conversationSid] = { step: 1, lastMessage: message };
@@ -184,7 +167,6 @@ app.post('/twilio-webhook', async (req, res) => {
         break;
 
       default:
-
 
         myInterval = setInterval(() => {
           x++;
@@ -245,7 +227,9 @@ app.post('/user-response', async (req, res) => {
 });
 
 async function enviarMensagemParaChat(conversationSid, message) {
-  await client.conversations.v1.conversations(conversationSid)
+  console.log(`enviarMensagemParaChat chamado com conversationSid: '${conversationSid}' e message: '${message}'`);
+  await client.conversations.v1.conversations(
+    conversationSid)
     .messages
     .create({ body: message })
     .then(message => console.log("Mensagem enviada para o chat:", message.sid))
